@@ -275,26 +275,27 @@ export const CRC64_NVME_REVERSED_TABLE = [
 ];
 
 export class Crc64Nvme {
-  checksum = BigInt("0xFFFFFFFFFFFFFFFF");
+  checksum = 0xffffffffffffffffn;
 
   update(data) {
+    let crc = this.checksum;
+
     for (let i = 0; i < data.length; i++) {
-      const byte = BigInt(data[i]);
-      const tableIndex = Number((this.checksum ^ byte) & BigInt(0xff));
-      this.checksum =
-        (this.checksum >> BigInt(8)) ^ CRC64_NVME_REVERSED_TABLE[tableIndex];
+      const tableIndex = Number((crc ^ BigInt(data[i])) & 0xffn);
+      crc = (crc >> 8n) ^ CRC64_NVME_REVERSED_TABLE[tableIndex];
     }
+
+    this.checksum = crc;
   }
 
   async digest() {
-    this.checksum = this.checksum ^ BigInt("0xFFFFFFFFFFFFFFFF");
     const result = new Uint8Array(8);
     const view = new DataView(result.buffer);
-    view.setBigUint64(0, this.checksum);
+    view.setBigUint64(0, this.checksum ^ 0xffffffffffffffffn);
     return result;
   }
 
   reset() {
-    this.checksum = BigInt("0xFFFFFFFFFFFFFFFF");
+    this.checksum = 0xffffffffffffffffn;
   }
 }

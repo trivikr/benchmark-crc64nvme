@@ -290,8 +290,10 @@ export class Crc64Nvme {
 
   async digest() {
     const result = new Uint8Array(8);
-    const view = new DataView(result.buffer);
-    view.setBigUint64(0, this.checksum ^ 0xffffffffffffffffn);
+    new DataView(result.buffer).setBigUint64(
+      0,
+      this.checksum ^ 0xffffffffffffffffn
+    );
     return result;
   }
 

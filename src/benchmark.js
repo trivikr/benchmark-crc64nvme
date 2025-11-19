@@ -38,17 +38,31 @@ bench
 await bench.run();
 
 const table = new Table({
-  head: ["Name", "ops/s average", "ops/s median"],
+  head: ["Name", "Average (ops/s)", "Median (ops/s)", "Samples"],
   style: { head: ["bold"] },
 });
 
-const stringToInteger = (num) => Intl.NumberFormat().format(parseInt(num));
+const formatNumber = (num) => Intl.NumberFormat().format(parseInt(num));
 
 bench.tasks.forEach((task) => {
   table.push([
     task.name,
-    { hAlign: "right", content: stringToInteger(task.result.throughput.mean) },
-    { hAlign: "right", content: stringToInteger(task.result.throughput.p50) },
+    {
+      hAlign: "right",
+      content: `${formatNumber(
+        task.result.throughput.mean
+      )} \xb1 ${task.result.throughput.rme.toFixed(2)}%`,
+    },
+    {
+      hAlign: "right",
+      content: `${formatNumber(task.result.throughput.p50)} \xb1 ${Math.round(
+        task.result.throughput.mad
+      ).toString()}`,
+    },
+    {
+      hAlign: "right",
+      content: formatNumber(task.result.latency.samples.length),
+    },
   ]);
 });
 

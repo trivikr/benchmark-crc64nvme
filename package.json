@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "benchmark:crc64nvme": "node src/benchmark.js"
+    "benchmark:crc64nvme": "node src/benchmark.js",
+    "test": "node --test src/crc64nvme.test.js"
   },
   "repository": {
     "type": "git",

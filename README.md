@@ -15,7 +15,7 @@ Benchmark various CRC64NVME implementations on Node.js
 ## Setup
 
 ```console
-$ node -**v**
+$ node -v
 v24.11.1
 
 $ pnpm benchmark

@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "benchmark:crc64nvme": "node src/benchmark.js",
+    "benchmark": "node src/benchmark.js",
     "test": "node --test src/crc64nvme.test.js"
   },
   "repository": {
@@ -23,6 +23,6 @@
   "dependencies": {
     "@aws-sdk/crc64-nvme-crt": "^3.932.0",
     "@smithy/util-base64": "^4.3.0",
-    "benchmark": "^2.1.4"
+    "tinybench": "^5.1.0"
   }
 }

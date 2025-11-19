@@ -1,5 +1,5 @@
 import { CrtCrc64Nvme } from "@aws-sdk/crc64-nvme-crt";
-import benchmark from "benchmark";
+import { Bench, hrtimeNow } from "tinybench";
 
 import { Crc64Nvme } from "./crc64nvme.js";
 import { Crc64Nvme2 } from "./crc64nvme-2.js";
@@ -10,15 +10,14 @@ const generateBuffer = (size) => {
   return buf;
 };
 
-const suite = new benchmark.Suite();
+const bench = new Bench({ name: "Benchmark:", now: hrtimeNow });
 const testBuffer = generateBuffer(1024);
 
 const crtCrc64NvmeObj = new CrtCrc64Nvme();
 const crc64NvmeObj = new Crc64Nvme();
 const crc64Nvme2Obj = new Crc64Nvme2();
 
-console.log(`Benchmark:`);
-suite
+bench
   .add("CrtCrc64Nvme", async () => {
     crtCrc64NvmeObj.update(testBuffer);
     await crtCrc64NvmeObj.digest();
@@ -33,12 +32,17 @@ suite
     crc64Nvme2Obj.update(testBuffer);
     await crc64Nvme2Obj.digest();
     crc64Nvme2Obj.reset();
-  })
-  .on("cycle", (event) => {
-    console.log(String(event.target));
-  })
-  .on("complete", () => {
-    console.log("Fastest is " + suite.filter("fastest").map("name"));
-  })
-  // run sync
-  .run({ async: false });
+  });
+
+await bench.run();
+
+const results = bench.tasks.reduce((acc, task) => {
+  acc[task.name] = {
+    "ops/s average": task.result.throughput.mean.toFixed(2),
+    "ops/s median": task.result.throughput.p50.toFixed(2),
+  };
+  return acc;
+}, {});
+
+console.log(bench.name);
+console.table(results);

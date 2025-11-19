@@ -102,7 +102,7 @@ export class Crc64Nvme2 {
     for (let i = 0; i < len; i++) {
       const idx = ((crc2 ^ data[i]) & 255) << 1;
 
-      crc2 = (crc2 >>> 8) | ((crc1 & 255) << 24);
+      crc2 = ((crc2 >>> 8) | ((crc1 & 255) << 24)) >>> 0;
       crc1 >>>= 8;
 
       crc1 ^= table[idx];

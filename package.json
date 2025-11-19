@@ -23,6 +23,7 @@
   "dependencies": {
     "@aws-sdk/crc64-nvme-crt": "^3.932.0",
     "@smithy/util-base64": "^4.3.0",
+    "cli-table3": "^0.6.5",
     "tinybench": "^5.1.0"
   }
 }

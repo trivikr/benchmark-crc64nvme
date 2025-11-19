@@ -1,5 +1,6 @@
 import { CrtCrc64Nvme } from "@aws-sdk/crc64-nvme-crt";
 import { Bench, hrtimeNow } from "tinybench";
+import Table from "cli-table3";
 
 import { Crc64Nvme } from "./crc64nvme.js";
 import { Crc64Nvme2 } from "./crc64nvme-2.js";
@@ -36,13 +37,25 @@ bench
 
 await bench.run();
 
-const results = bench.tasks.reduce((acc, task) => {
-  acc[task.name] = {
-    "ops/s average": task.result.throughput.mean.toFixed(2),
-    "ops/s median": task.result.throughput.p50.toFixed(2),
-  };
-  return acc;
-}, {});
+const table = new Table({
+  head: ["Name", "ops/s average", "ops/s median"],
+  style: { head: ["bold"] },
+});
+
+const stringToInteger = (num) => Intl.NumberFormat().format(parseInt(num));
+
+bench.tasks.forEach((task) => {
+  table.push([
+    task.name,
+    { hAlign: "right", content: stringToInteger(task.result.throughput.mean) },
+    { hAlign: "right", content: stringToInteger(task.result.throughput.p50) },
+  ]);
+});
 
 console.log(bench.name);
-console.table(results);
+console.log(table.toString());
+
+const fastest = bench.tasks.sort(
+  (a, b) => b.result?.throughput.mean - a.result?.throughput.mean
+)[0];
+console.log(`Fastest is ${fastest.name}`);

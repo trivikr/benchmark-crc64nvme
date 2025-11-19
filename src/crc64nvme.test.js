@@ -88,7 +88,7 @@ for (const Crc64Ctr of [CrtCrc64Nvme, Crc64Nvme, Crc64Nvme2]) {
         { byte: 0x01, expected: "qrSgj9/ZDlE=" },
         { byte: 0xff, expected: "/wAAAAAAAAA=" },
         { byte: 0x41, expected: "fe56MqW3Iz4=" }, // 'A'
-        { byte: 0x61, expected: "jC+ERbTL/Dw=" }, // 'a' (same as above if lowercase)
+        { byte: 0x61, expected: "jC+ERbTL/Dw=" }, // 'a'
       ];
 
       for (const tc of testCases) {

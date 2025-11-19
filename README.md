@@ -23,8 +23,9 @@ $ pnpm benchmark:crc64nvme
 ...
 
 Benchmark:
-CrtCrc64Nvme x 917,667 ops/sec ±18.08% (59 runs sampled)
-Crc64Nvme x 29,403 ops/sec ±2.46% (89 runs sampled)
-Crc64Nvme2 x 261,790 ops/sec ±22.49% (74 runs sampled)
+CrtCrc64Nvme x 958,100 ops/sec ±17.76% (64 runs sampled)
+Crc64Nvme x 29,409 ops/sec ±1.82% (85 runs sampled)
+Crc64Nvme2 x 244,432 ops/sec ±21.46% (70 runs sampled)
+Crc64NvmeWasm x 226,472 ops/sec ±54.37% (27 runs sampled)
 Fastest is CrtCrc64Nvme
 ```

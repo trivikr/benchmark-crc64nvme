@@ -3,6 +3,7 @@ import benchmark from "benchmark";
 
 import { Crc64Nvme } from "./crc64nvme.js";
 import { Crc64Nvme2 } from "./crc64nvme-2.js";
+import { Crc64NvmeWasm } from "./crc64nvme-wasm.js";
 
 const generateBuffer = (size) => {
   const buf = Buffer.alloc(size);
@@ -16,6 +17,7 @@ const testBuffer = generateBuffer(1024);
 const crtCrc64NvmeObj = new CrtCrc64Nvme();
 const crc64NvmeObj = new Crc64Nvme();
 const crc64Nvme2Obj = new Crc64Nvme2();
+const crc64NvmeWasmObj = new Crc64NvmeWasm();
 
 console.log(`Benchmark:`);
 suite
@@ -33,6 +35,11 @@ suite
     crc64Nvme2Obj.update(testBuffer);
     await crc64Nvme2Obj.digest();
     crc64Nvme2Obj.reset();
+  })
+  .add("Crc64NvmeWasm", async () => {
+    crc64NvmeWasmObj.update(testBuffer);
+    await crc64NvmeWasmObj.digest();
+    crc64NvmeWasmObj.reset();
   })
   .on("cycle", (event) => {
     console.log(String(event.target));

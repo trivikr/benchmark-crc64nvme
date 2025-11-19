@@ -14,9 +14,6 @@ importers:
       '@smithy/util-base64':
         specifier: ^4.3.0
         version: 4.3.0
-      '@smithy/util-utf8':
-        specifier: ^4.2.0
-        version: 4.2.0
       benchmark:
         specifier: ^2.1.4
         version: 2.1.4

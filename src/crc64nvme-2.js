@@ -100,9 +100,9 @@ export class Crc64Nvme2 {
     const len = data.length;
 
     for (let i = 0; i < len; i++) {
-      const idx = ((crc2 ^ data[i]) & 0xff) << 1;
+      const idx = ((crc2 ^ data[i]) & 255) << 1;
 
-      crc2 = (crc2 >>> 8) | ((crc1 & 0xff) << 24);
+      crc2 = (crc2 >>> 8) | ((crc1 & 255) << 24);
       crc1 >>>= 8;
 
       crc1 ^= table[idx];
@@ -114,18 +114,18 @@ export class Crc64Nvme2 {
   }
 
   async digest() {
-    const c1 = this.c1 ^ 0xffffffff;
-    const c2 = this.c2 ^ 0xffffffff;
+    const c1 = this.c1 ^ 4294967295;
+    const c2 = this.c2 ^ 4294967295;
 
     return new Uint8Array([
       c1 >>> 24,
-      (c1 >>> 16) & 0xff,
-      (c1 >>> 8) & 0xff,
-      c1 & 0xff,
+      (c1 >>> 16) & 255,
+      (c1 >>> 8) & 255,
+      c1 & 255,
       c2 >>> 24,
-      (c2 >>> 16) & 0xff,
-      (c2 >>> 8) & 0xff,
-      c2 & 0xff,
+      (c2 >>> 16) & 255,
+      (c2 >>> 8) & 255,
+      c2 & 255,
     ]);
   }
 

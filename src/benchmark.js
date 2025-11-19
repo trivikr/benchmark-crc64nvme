@@ -1,5 +1,4 @@
 import { CrtCrc64Nvme } from "@aws-sdk/crc64-nvme-crt";
-import { toBase64 } from "@smithy/util-base64";
 import benchmark from "benchmark";
 
 import { Crc64Nvme } from "./crc64nvme.js";
@@ -14,28 +13,16 @@ const generateBuffer = (size) => {
 const suite = new benchmark.Suite();
 const testBuffer = generateBuffer(1024);
 
-const awsCrtCrc64NvmeObj = new CrtCrc64Nvme();
+const crtCrc64NvmeObj = new CrtCrc64Nvme();
 const crc64NvmeObj = new Crc64Nvme();
 const crc64Nvme2Obj = new Crc64Nvme2();
-awsCrtCrc64NvmeObj.update(testBuffer);
-crc64NvmeObj.update(testBuffer);
-crc64Nvme2Obj.update(testBuffer);
 
-console.log(`CRC32NVME values returned for random buffer:`);
-console.log(`* @aws-sdk/crc64-nvme-crt: ${toBase64(await awsCrtCrc64NvmeObj.digest())}`);
-console.log(`* Crc64Nvme              : ${toBase64(await crc64NvmeObj.digest())}`);
-console.log(`* Crc64Nvme2             : ${toBase64(await crc64Nvme2Obj.digest())}`);
-
-awsCrtCrc64NvmeObj.reset();
-crc64NvmeObj.reset();
-crc64Nvme2Obj.reset();
-
-console.log(`\nBenchmark:`);
+console.log(`Benchmark:`);
 suite
   .add("CrtCrc64Nvme", async () => {
-    awsCrtCrc64NvmeObj.update(testBuffer);
-    await awsCrtCrc64NvmeObj.digest();
-    awsCrtCrc64NvmeObj.reset();
+    crtCrc64NvmeObj.update(testBuffer);
+    await crtCrc64NvmeObj.digest();
+    crtCrc64NvmeObj.reset();
   })
   .add("Crc64Nvme", async () => {
     crc64NvmeObj.update(testBuffer);

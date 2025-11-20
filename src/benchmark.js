@@ -43,7 +43,7 @@ try {
     style: { head: ["bold"] },
   });
 
-  const formatNumber = (num) => Intl.NumberFormat().format(parseInt(num));
+  const formatNumber = (num) => Intl.NumberFormat().format(Math.round(num));
 
   bench.tasks.forEach((task) => {
     if (!task.result) return;

@@ -35,45 +35,50 @@ bench
     crc64Nvme2Obj.reset();
   });
 
-await bench.run();
+try {
+  await bench.run();
 
-const table = new Table({
-  head: ["Name", "Average (ops/s)", "Median (ops/s)", "Samples"],
-  style: { head: ["bold"] },
-});
+  const table = new Table({
+    head: ["Name", "Average (ops/s)", "Median (ops/s)", "Samples"],
+    style: { head: ["bold"] },
+  });
 
-const formatNumber = (num) => Intl.NumberFormat().format(parseInt(num));
+  const formatNumber = (num) => Intl.NumberFormat().format(parseInt(num));
 
-bench.tasks.forEach((task) => {
-  if (!task.result) return;
-  table.push([
-    task.name,
-    {
-      hAlign: "right",
-      content: `${formatNumber(
-        task.result.throughput.mean
-      )} \xb1 ${task.result.throughput.rme.toFixed(2)}%`,
-    },
-    {
-      hAlign: "right",
-      content: `${formatNumber(task.result.throughput.p50)} \xb1 ${Math.round(
-        task.result.throughput.mad
-      ).toString()}`,
-    },
-    {
-      hAlign: "right",
-      content: formatNumber(task.result.latency.samples.length),
-    },
-  ]);
-});
+  bench.tasks.forEach((task) => {
+    if (!task.result) return;
+    table.push([
+      task.name,
+      {
+        hAlign: "right",
+        content: `${formatNumber(
+          task.result.throughput.mean
+        )} \xb1 ${task.result.throughput.rme.toFixed(2)}%`,
+      },
+      {
+        hAlign: "right",
+        content: `${formatNumber(task.result.throughput.p50)} \xb1 ${Math.round(
+          task.result.throughput.mad
+        ).toString()}`,
+      },
+      {
+        hAlign: "right",
+        content: formatNumber(task.result.latency.samples.length),
+      },
+    ]);
+  });
 
-console.log(bench.name);
-console.log(table.toString());
+  console.log(bench.name);
+  console.log(table.toString());
 
-const fastest = [...bench.tasks]
-  .filter((task) => task.result?.throughput?.mean)
-  .sort((a, b) => b.result.throughput.mean - a.result.throughput.mean)[0];
+  const fastest = [...bench.tasks]
+    .filter((task) => task.result?.throughput?.mean)
+    .sort((a, b) => b.result.throughput.mean - a.result.throughput.mean)[0];
 
-if (fastest) {
-  console.log(`Fastest is ${fastest.name}`);
+  if (fastest) {
+    console.log(`Fastest is ${fastest.name}`);
+  }
+} catch (error) {
+  console.error("Benchmark failed:", error);
+  process.exit(1);
 }

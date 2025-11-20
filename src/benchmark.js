@@ -57,9 +57,9 @@ try {
       },
       {
         hAlign: "right",
-        content: `${formatNumber(task.result.throughput.p50)} \xb1 ${Math.round(
-          task.result.throughput.mad
-        ).toString()}`,
+        content: `${formatNumber(
+          task.result.throughput.p50
+        )} \xb1 ${formatNumber(Math.round(task.result.throughput.mad))}`,
       },
       {
         hAlign: "right",

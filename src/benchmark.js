@@ -69,7 +69,10 @@ bench.tasks.forEach((task) => {
 console.log(bench.name);
 console.log(table.toString());
 
-const fastest = bench.tasks.sort(
-  (a, b) => b.result?.throughput.mean - a.result?.throughput.mean
-)[0];
-console.log(`Fastest is ${fastest.name}`);
+const fastest = [...bench.tasks]
+  .filter((task) => task.result?.throughput?.mean)
+  .sort((a, b) => b.result.throughput.mean - a.result.throughput.mean)[0];
+
+if (fastest) {
+  console.log(`Fastest is ${fastest.name}`);
+}

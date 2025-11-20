@@ -45,6 +45,7 @@ const table = new Table({
 const formatNumber = (num) => Intl.NumberFormat().format(parseInt(num));
 
 bench.tasks.forEach((task) => {
+  if (!task.result) return;
   table.push([
     task.name,
     {

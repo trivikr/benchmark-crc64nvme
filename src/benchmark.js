@@ -11,74 +11,88 @@ const generateBuffer = (size) => {
   return buf;
 };
 
-const bench = new Bench({ name: "Benchmark:", now: hrtimeNow });
-const testBuffer = generateBuffer(1024);
-
 const crtCrc64NvmeObj = new CrtCrc64Nvme();
 const crc64NvmeObj = new Crc64Nvme();
 const crc64Nvme2Obj = new Crc64Nvme2();
 
-bench
-  .add("CrtCrc64Nvme", async () => {
-    crtCrc64NvmeObj.update(testBuffer);
-    await crtCrc64NvmeObj.digest();
-    crtCrc64NvmeObj.reset();
-  })
-  .add("Crc64Nvme", async () => {
-    crc64NvmeObj.update(testBuffer);
-    await crc64NvmeObj.digest();
-    crc64NvmeObj.reset();
-  })
-  .add("Crc64Nvme2", async () => {
-    crc64Nvme2Obj.update(testBuffer);
-    await crc64Nvme2Obj.digest();
-    crc64Nvme2Obj.reset();
+const FILE_SIZES = [
+  128, // 128 KB
+  1024, // 1 MB
+  10 * 1024, // 10 MB
+];
+
+for (const fileSize of FILE_SIZES) {
+  const testBuffer = generateBuffer(fileSize * 1024);
+
+  const fileSizeText =
+    fileSize < 1024 ? `${fileSize} KB` : `${fileSize / 1024} MB`;
+  const bench = new Bench({
+    name: `Benchmark for ${fileSizeText}:`,
+    now: hrtimeNow,
   });
 
-try {
-  await bench.run();
+  bench
+    .add("CrtCrc64Nvme", async () => {
+      crtCrc64NvmeObj.update(testBuffer);
+      await crtCrc64NvmeObj.digest();
+      crtCrc64NvmeObj.reset();
+    })
+    .add("Crc64Nvme", async () => {
+      crc64NvmeObj.update(testBuffer);
+      await crc64NvmeObj.digest();
+      crc64NvmeObj.reset();
+    })
+    .add("Crc64Nvme2", async () => {
+      crc64Nvme2Obj.update(testBuffer);
+      await crc64Nvme2Obj.digest();
+      crc64Nvme2Obj.reset();
+    });
 
-  const table = new Table({
-    head: ["Name", "Average (ops/s)", "Median (ops/s)", "Samples"],
-    style: { head: ["bold"] },
-  });
+  try {
+    await bench.run();
 
-  const formatNumber = (num) => Intl.NumberFormat().format(Math.round(num));
+    const table = new Table({
+      head: ["Name", "Average (ops/s)", "Median (ops/s)", "Samples"],
+      style: { head: ["bold"] },
+    });
 
-  bench.tasks.forEach((task) => {
-    if (!task.result) return;
-    table.push([
-      task.name,
-      {
-        hAlign: "right",
-        content: `${formatNumber(
-          task.result.throughput.mean
-        )} \xb1 ${task.result.throughput.rme.toFixed(2)}%`,
-      },
-      {
-        hAlign: "right",
-        content: `${formatNumber(
-          task.result.throughput.p50
-        )} \xb1 ${formatNumber(Math.round(task.result.throughput.mad))}`,
-      },
-      {
-        hAlign: "right",
-        content: formatNumber(task.result.latency.samples.length),
-      },
-    ]);
-  });
+    const formatNumber = (num) => Intl.NumberFormat().format(Math.round(num));
 
-  console.log(bench.name);
-  console.log(table.toString());
+    bench.tasks.forEach((task) => {
+      if (!task.result) return;
+      table.push([
+        task.name,
+        {
+          hAlign: "right",
+          content: `${formatNumber(
+            task.result.throughput.mean
+          )} \xb1 ${task.result.throughput.rme.toFixed(2)}%`,
+        },
+        {
+          hAlign: "right",
+          content: `${formatNumber(
+            task.result.throughput.p50
+          )} \xb1 ${formatNumber(Math.round(task.result.throughput.mad))}`,
+        },
+        {
+          hAlign: "right",
+          content: formatNumber(task.result.latency.samples.length),
+        },
+      ]);
+    });
 
-  const fastest = [...bench.tasks]
-    .filter((task) => task.result?.throughput?.mean)
-    .sort((a, b) => b.result.throughput.mean - a.result.throughput.mean)[0];
+    console.log(bench.name);
+    console.log(table.toString());
 
-  if (fastest) {
-    console.log(`Fastest is ${fastest.name}`);
+    const fastest = [...bench.tasks]
+      .filter((task) => task.result?.throughput?.mean)
+      .sort((a, b) => b.result.throughput.mean - a.result.throughput.mean)[0];
+
+    if (fastest) {
+      console.log(`Fastest is ${fastest.name}\n`);
+    }
+  } catch (error) {
+    console.error(`Benchmark failed for ${fileSizeText}:`, error);
+    process.exit(1);
   }
-} catch (error) {
-  console.error("Benchmark failed:", error);
-  process.exit(1);
 }

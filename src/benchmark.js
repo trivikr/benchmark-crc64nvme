@@ -21,6 +21,46 @@ const FILE_SIZES = [
   10 * 1024, // 10 MB
 ];
 
+const splitBufferIntoChunksAndUpdate = (data, checksum) => {
+  // Define chunk sizes: 8KB, 16KB, 32KB, 64KB, 128KB with 1KB in between
+  const chunkSizes = [
+    8 * 1024, // 8KB
+    1 * 1024, // 1KB
+    16 * 1024, // 16KB
+    1 * 1024, // 1KB
+    32 * 1024, // 32KB
+    1 * 1024, // 1KB
+    64 * 1024, // 64KB
+    1 * 1024, // 1KB
+    128 * 1024, // 128KB
+  ];
+
+  // Use Uint8Array view to avoid ArrayBuffer copying
+  const view = new Uint8Array(data);
+  const totalLength = view.length;
+  const patternLength = chunkSizes.length;
+
+  let offset = 0;
+  let patternIndex = 0;
+
+  while (offset < totalLength) {
+    const chunkSize = chunkSizes[patternIndex];
+    const actualChunkSize = Math.min(chunkSize, totalLength - offset);
+
+    // subarray() creates a view (no copy), slice() would copy data
+    const chunk = view.subarray(offset, offset + actualChunkSize);
+
+    checksum.update(chunk);
+
+    offset += actualChunkSize;
+
+    // Increment pattern index with wraparound
+    if (++patternIndex === patternLength) {
+      patternIndex = 0;
+    }
+  }
+};
+
 for (const fileSize of FILE_SIZES) {
   const testBuffer = generateBuffer(fileSize * 1024);
 
@@ -33,17 +73,17 @@ for (const fileSize of FILE_SIZES) {
 
   bench
     .add("CrtCrc64Nvme", async () => {
-      crtCrc64NvmeObj.update(testBuffer);
+      splitBufferIntoChunksAndUpdate(testBuffer, crtCrc64NvmeObj);
       await crtCrc64NvmeObj.digest();
       crtCrc64NvmeObj.reset();
     })
     .add("Crc64Nvme", async () => {
-      crc64NvmeObj.update(testBuffer);
+      splitBufferIntoChunksAndUpdate(testBuffer, crc64NvmeObj);
       await crc64NvmeObj.digest();
       crc64NvmeObj.reset();
     })
     .add("Crc64Nvme2", async () => {
-      crc64Nvme2Obj.update(testBuffer);
+      splitBufferIntoChunksAndUpdate(testBuffer, crc64Nvme2Obj);
       await crc64Nvme2Obj.digest();
       crc64Nvme2Obj.reset();
     });

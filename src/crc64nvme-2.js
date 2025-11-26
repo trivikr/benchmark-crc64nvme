@@ -1,5 +1,5 @@
 const generateCRC64NVMETable = () => {
-  const table = [];
+  const table = new Array(512);
 
   for (let i = 0; i < 256; i++) {
     let crc = BigInt(i);
@@ -21,7 +21,7 @@ const generateCRC64NVMETable = () => {
   return new Uint32Array(table);
 };
 
-export const table = generateCRC64NVMETable();
+export const CRC64_NVME_REVERSED_TABLE = generateCRC64NVMETable();
 
 /**
  * Alternate implementation in JS using int32 pairs.
@@ -42,8 +42,8 @@ export class Crc64Nvme2 {
       crc2 = ((crc2 >>> 8) | ((crc1 & 255) << 24)) >>> 0;
       crc1 >>>= 8;
 
-      crc1 ^= table[idx];
-      crc2 ^= table[idx + 1];
+      crc1 ^= CRC64_NVME_REVERSED_TABLE[idx];
+      crc2 ^= CRC64_NVME_REVERSED_TABLE[idx + 1];
     }
 
     this.c1 = crc1;

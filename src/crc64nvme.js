@@ -2,7 +2,7 @@
  * Reference: https://github.com/torvalds/linux/blob/master/lib/crc/gen_crc64table.c
  */
 const generateCRC64NVMETable = () => {
-  const table = [];
+  const table = new Array(256);
 
   for (let i = 0; i < 256; i++) {
     let crc = BigInt(i);
@@ -16,7 +16,7 @@ const generateCRC64NVMETable = () => {
       }
     }
 
-    table.push(crc);
+    table[i] = crc;
   }
 
   return table;

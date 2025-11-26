@@ -1,16 +1,4 @@
-const reverseBits64 = (n) => {
-  let result = 0n;
-  for (let i = 0; i < 64; i++) {
-    result = (result << 1n) | (n & 1n);
-    n >>= 1n;
-  }
-  return result;
-};
-
 const generateCRC64NVMETable = () => {
-  const poly = 0xad93d23594c93659n;
-  const reflectedPoly = reverseBits64(poly);
-
   const table = [];
 
   for (let i = 0; i < 256; i++) {
@@ -19,7 +7,7 @@ const generateCRC64NVMETable = () => {
     // Process 8 bits
     for (let j = 0; j < 8; j++) {
       if (crc & 1n) {
-        crc = (crc >> 1n) ^ reflectedPoly;
+        crc = (crc >> 1n) ^ 0x9a6c9329ac4bc9b5n;
       } else {
         crc = crc >> 1n;
       }

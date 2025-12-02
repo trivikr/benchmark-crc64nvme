@@ -28,12 +28,21 @@ const generateCRC64NVMETable = () => {
 };
 
 export const CRC64_NVME_REVERSED_TABLE = generateCRC64NVMETable();
+const t0 = CRC64_NVME_REVERSED_TABLE[0];
+const t1 = CRC64_NVME_REVERSED_TABLE[1];
+const t2 = CRC64_NVME_REVERSED_TABLE[2];
+const t3 = CRC64_NVME_REVERSED_TABLE[3];
+const t4 = CRC64_NVME_REVERSED_TABLE[4];
+const t5 = CRC64_NVME_REVERSED_TABLE[5];
+const t6 = CRC64_NVME_REVERSED_TABLE[6];
+const t7 = CRC64_NVME_REVERSED_TABLE[7];
 
 /**
  * Alternate implementation in JS using int32 pairs.
  */
 export class Crc64Nvme2 {
   constructor() {
+    this.buffer = new Uint8Array(8);
     this.reset();
   }
 
@@ -54,24 +63,23 @@ export class Crc64Nvme2 {
       const idx7 = (((crc1 >>> 24) ^ data[i + 7]) & 255) << 1;
 
       crc1 =
-        CRC64_NVME_REVERSED_TABLE[7][idx0] ^
-        CRC64_NVME_REVERSED_TABLE[6][idx1] ^
-        CRC64_NVME_REVERSED_TABLE[5][idx2] ^
-        CRC64_NVME_REVERSED_TABLE[4][idx3] ^
-        CRC64_NVME_REVERSED_TABLE[3][idx4] ^
-        CRC64_NVME_REVERSED_TABLE[2][idx5] ^
-        CRC64_NVME_REVERSED_TABLE[1][idx6] ^
-        CRC64_NVME_REVERSED_TABLE[0][idx7];
-
+        t7[idx0] ^
+        t6[idx1] ^
+        t5[idx2] ^
+        t4[idx3] ^
+        t3[idx4] ^
+        t2[idx5] ^
+        t1[idx6] ^
+        t0[idx7];
       crc2 =
-        CRC64_NVME_REVERSED_TABLE[7][idx0 + 1] ^
-        CRC64_NVME_REVERSED_TABLE[6][idx1 + 1] ^
-        CRC64_NVME_REVERSED_TABLE[5][idx2 + 1] ^
-        CRC64_NVME_REVERSED_TABLE[4][idx3 + 1] ^
-        CRC64_NVME_REVERSED_TABLE[3][idx4 + 1] ^
-        CRC64_NVME_REVERSED_TABLE[2][idx5 + 1] ^
-        CRC64_NVME_REVERSED_TABLE[1][idx6 + 1] ^
-        CRC64_NVME_REVERSED_TABLE[0][idx7 + 1];
+        t7[idx0 + 1] ^
+        t6[idx1 + 1] ^
+        t5[idx2 + 1] ^
+        t4[idx3 + 1] ^
+        t3[idx4 + 1] ^
+        t2[idx5 + 1] ^
+        t1[idx6 + 1] ^
+        t0[idx7 + 1];
 
       i += 8;
     }
@@ -79,9 +87,8 @@ export class Crc64Nvme2 {
     while (i < len) {
       const idx = ((crc2 ^ data[i]) & 255) << 1;
       crc2 = ((crc2 >>> 8) | ((crc1 & 255) << 24)) >>> 0;
-      crc1 >>>= 8;
-      crc1 ^= CRC64_NVME_REVERSED_TABLE[0][idx];
-      crc2 ^= CRC64_NVME_REVERSED_TABLE[0][idx + 1];
+      crc1 = (crc1 >>> 8) ^ t0[idx];
+      crc2 ^= t0[idx + 1];
       i++;
     }
 
@@ -92,17 +99,18 @@ export class Crc64Nvme2 {
   async digest() {
     const c1 = this.c1 ^ 4294967295;
     const c2 = this.c2 ^ 4294967295;
+    const buf = this.buffer;
 
-    return new Uint8Array([
-      c1 >>> 24,
-      (c1 >>> 16) & 255,
-      (c1 >>> 8) & 255,
-      c1 & 255,
-      c2 >>> 24,
-      (c2 >>> 16) & 255,
-      (c2 >>> 8) & 255,
-      c2 & 255,
-    ]);
+    buf[0] = c1 >>> 24;
+    buf[1] = (c1 >>> 16) & 255;
+    buf[2] = (c1 >>> 8) & 255;
+    buf[3] = c1 & 255;
+    buf[4] = c2 >>> 24;
+    buf[5] = (c2 >>> 16) & 255;
+    buf[6] = (c2 >>> 8) & 255;
+    buf[7] = c2 & 255;
+
+    return buf;
   }
 
   reset() {

@@ -42,7 +42,6 @@ const t7 = CRC64_NVME_REVERSED_TABLE[7];
  */
 export class Crc64Nvme2 {
   constructor() {
-    this.buffer = new Uint8Array(8);
     this.reset();
   }
 
@@ -97,18 +96,17 @@ export class Crc64Nvme2 {
   async digest() {
     const c1 = this.c1 ^ 4294967295;
     const c2 = this.c2 ^ 4294967295;
-    const buf = this.buffer;
 
-    buf[0] = c1 >>> 24;
-    buf[1] = (c1 >>> 16) & 255;
-    buf[2] = (c1 >>> 8) & 255;
-    buf[3] = c1 & 255;
-    buf[4] = c2 >>> 24;
-    buf[5] = (c2 >>> 16) & 255;
-    buf[6] = (c2 >>> 8) & 255;
-    buf[7] = c2 & 255;
-
-    return buf;
+    return new Uint8Array([
+      c1 >>> 24,
+      (c1 >>> 16) & 255,
+      (c1 >>> 8) & 255,
+      c1 & 255,
+      c2 >>> 24,
+      (c2 >>> 16) & 255,
+      (c2 >>> 8) & 255,
+      c2 & 255,
+    ]);
   }
 
   reset() {

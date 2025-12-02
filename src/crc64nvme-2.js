@@ -53,14 +53,14 @@ export class Crc64Nvme2 {
     let crc2 = this.c2;
 
     while (i + 8 <= len) {
-      const idx0 = ((crc2 ^ data[i]) & 255) << 1;
-      const idx1 = (((crc2 >>> 8) ^ data[i + 1]) & 255) << 1;
-      const idx2 = (((crc2 >>> 16) ^ data[i + 2]) & 255) << 1;
-      const idx3 = (((crc2 >>> 24) ^ data[i + 3]) & 255) << 1;
-      const idx4 = ((crc1 ^ data[i + 4]) & 255) << 1;
-      const idx5 = (((crc1 >>> 8) ^ data[i + 5]) & 255) << 1;
-      const idx6 = (((crc1 >>> 16) ^ data[i + 6]) & 255) << 1;
-      const idx7 = (((crc1 >>> 24) ^ data[i + 7]) & 255) << 1;
+      const idx0 = ((crc2 ^ data[i++]) & 255) << 1;
+      const idx1 = (((crc2 >>> 8) ^ data[i++]) & 255) << 1;
+      const idx2 = (((crc2 >>> 16) ^ data[i++]) & 255) << 1;
+      const idx3 = (((crc2 >>> 24) ^ data[i++]) & 255) << 1;
+      const idx4 = ((crc1 ^ data[i++]) & 255) << 1;
+      const idx5 = (((crc1 >>> 8) ^ data[i++]) & 255) << 1;
+      const idx6 = (((crc1 >>> 16) ^ data[i++]) & 255) << 1;
+      const idx7 = (((crc1 >>> 24) ^ data[i++]) & 255) << 1;
 
       crc1 =
         t7[idx0] ^
@@ -80,8 +80,6 @@ export class Crc64Nvme2 {
         t2[idx5 + 1] ^
         t1[idx6 + 1] ^
         t0[idx7 + 1];
-
-      i += 8;
     }
 
     while (i < len) {

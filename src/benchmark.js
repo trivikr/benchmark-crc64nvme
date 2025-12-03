@@ -116,7 +116,7 @@ for (const fileSize of FILE_SIZES) {
         },
         {
           hAlign: "right",
-          content: formatNumber(task.result.latency.samples.length),
+          content: formatNumber(task.result.latency.samplesCount),
         },
       ]);
     });

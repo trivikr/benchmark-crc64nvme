@@ -4,6 +4,7 @@ import assert from "node:assert";
 import { CrtCrc64Nvme } from "@aws-sdk/crc64-nvme-crt";
 import { Crc64Nvme } from "./crc64nvme.js";
 import { Crc64Nvme2 } from "./crc64nvme-2.js";
+import { Crc64NvmeWasm } from "./crc64nvme-wasm.js";
 
 import { toBase64 } from "@smithy/util-base64";
 
@@ -54,7 +55,7 @@ const TEST_VECTORS = [
   },
 ];
 
-for (const Crc64Ctr of [CrtCrc64Nvme, Crc64Nvme, Crc64Nvme2]) {
+for (const Crc64Ctr of [CrtCrc64Nvme, Crc64Nvme, Crc64Nvme2, Crc64NvmeWasm]) {
   describe(Crc64Ctr.name, () => {
     test("known test vectors", async (t) => {
       for (const vector of TEST_VECTORS) {
@@ -175,19 +176,28 @@ for (const Crc64Ctr of [CrtCrc64Nvme, Crc64Nvme, Crc64Nvme2]) {
       assert.strictEqual(digest.length, 8);
     });
 
-    test("digest does not mutate state", async () => {
-      const crc = new Crc64Ctr();
-      crc.update(new TextEncoder().encode("test"));
+    test(
+      "digest does not mutate state",
+      {
+        skip:
+          Crc64Ctr.name === "Crc64NvmeWasm"
+            ? "Crc64NvmeWasm mutates state: https://github.com/awslabs/aws-wasm-checksums/issues/23"
+            : false,
+      },
+      async () => {
+        const crc = new Crc64Ctr();
+        crc.update(new TextEncoder().encode("test"));
 
-      const digest1 = toBase64(await crc.digest());
-      const digest2 = toBase64(await crc.digest());
+        const digest1 = toBase64(await crc.digest());
+        const digest2 = toBase64(await crc.digest());
 
-      assert.strictEqual(
-        digest1,
-        digest2,
-        "Multiple digest calls should return same value"
-      );
-    });
+        assert.strictEqual(
+          digest1,
+          digest2,
+          "Multiple digest calls should return same value"
+        );
+      }
+    );
 
     test("consistent across multiple instances", async () => {
       const input = new TextEncoder().encode("consistency test");
